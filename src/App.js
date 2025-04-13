@@ -5,15 +5,39 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [city, setCity] = useState('');
 
+  // دریافت API Key از متغیر محیطی
+  const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
+
+  // دریافت آب‌وهوا بر اساس مختصات جغرافیایی
+  const fetchWeatherByLocation = (lat, lon) => {
+    if (!lat || !lon) return;
+
+    fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.cod === 200) {
+          setWeather(data);
+        } else {
+          alert('خطا در دریافت اطلاعات آب‌وهوا!');
+        }
+      })
+      .catch(() => {
+        alert('خطا در دریافت اطلاعات آب‌وهوا.');
+      });
+  };
+
   // گرفتن موقعیت مکانی کاربر
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setLocation({
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
-          });
+          const { latitude, longitude } = pos.coords;
+          setLocation({ lat: latitude, lon: longitude });
+
+          // فراخوانی تابع برای دریافت اطلاعات آب‌وهوا بر اساس مختصات
+          fetchWeatherByLocation(latitude, longitude);
         },
         (error) => {
           alert('دسترسی به موقعیت مکانی رد شد یا خطایی رخ داد.');
@@ -24,14 +48,12 @@ function App() {
     }
   }, []);
 
- 
-
   // دریافت آب‌وهوا بر اساس نام شهر
   const fetchWeatherByCity = () => {
     if (!city) return;
 
     fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=69477da39ac3c78569c0c90d7d5791e1&units=metric&lang=fa`
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=fa`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -47,12 +69,11 @@ function App() {
       });
   };
 
-  
   const getBackgroundStyle = () => {
     if (!weather || !weather.weather) return {};
-  
+
     const main = weather.weather[0].main.toLowerCase();
-  
+
     switch (main) {
       case 'clear':
         return { background: 'linear-gradient(to top, #fceabb, #f8b500)', color: '#333' }; // آفتابی
@@ -72,7 +93,6 @@ function App() {
         return { background: '#f0f0f0', color: '#333' }; // پیش‌فرض
     }
   };
-  
 
   return (
     <div style={{
@@ -82,7 +102,7 @@ function App() {
       minHeight: '100vh',
       ...getBackgroundStyle()
     }}>
-      <h1>برنامه آب‌وهوا ☀️🌧️</h1>
+      <h1>وضعیت آب‌و‌هوا ☀️🌧️</h1>
 
       {/* بخش جستجوی شهر */}
       <div style={{ marginBottom: 20 }}>
