@@ -1,3 +1,4 @@
+/* استایل‌های موجود */
 .App {
   text-align: center;
 }
@@ -35,4 +36,49 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* استایل‌های جدید برای وضعیت آب‌وهوا */
+.app-container {
+  text-align: center;
+  padding: 50px;
+  min-height: 100vh;
+  font-family: Tahoma, sans-serif;
+}
+
+.clear {
+  background: linear-gradient(to top, #fceabb, #f8b500);
+  color: #333;
+}
+
+.clouds {
+  background: linear-gradient(to top, #d7d2cc, #304352);
+  color: #fff;
+}
+
+.rain,
+.drizzle {
+  background: linear-gradient(to top, #4b79a1, #283e51);
+  color: #fff;
+}
+
+.snow {
+  background: linear-gradient(to top, #e6dada, #274046);
+  color: #333;
+}
+
+.fog,
+.mist {
+  background: linear-gradient(to top, #3e5151, #decba4);
+  color: #333;
+}
+
+.thunderstorm {
+  background: linear-gradient(to top, #141e30, #243b55);
+  color: #fff;
+}
+
+.default {
+  background: #f0f0f0;
+  color: #333;
 }

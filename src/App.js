@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './App.css'; // اضافه کردن فایل CSS
 
 function App() {
   const [location, setLocation] = useState({ lat: null, lon: null });
@@ -69,39 +70,34 @@ function App() {
       });
   };
 
-  const getBackgroundStyle = () => {
-    if (!weather || !weather.weather) return {};
+  // انتخاب کلاس CSS بر اساس وضعیت آب‌وهوا
+  const getBackgroundClass = () => {
+    if (!weather || !weather.weather) return 'default';
 
     const main = weather.weather[0].main.toLowerCase();
 
     switch (main) {
       case 'clear':
-        return { background: 'linear-gradient(to top, #fceabb, #f8b500)', color: '#333' }; // آفتابی
+        return 'clear'; // آفتابی
       case 'clouds':
-        return { background: 'linear-gradient(to top, #d7d2cc, #304352)', color: '#fff' }; // ابری
+        return 'clouds'; // ابری
       case 'rain':
       case 'drizzle':
-        return { background: 'linear-gradient(to top, #4b79a1, #283e51)', color: '#fff' }; // بارانی
+        return 'rain'; // بارانی
       case 'snow':
-        return { background: 'linear-gradient(to top, #e6dada, #274046)', color: '#333' }; // برفی
+        return 'snow'; // برفی
       case 'fog':
       case 'mist':
-        return { background: 'linear-gradient(to top, #3e5151, #decba4)', color: '#333' }; // مه
+        return 'fog'; // مه
       case 'thunderstorm':
-        return { background: 'linear-gradient(to top, #141e30, #243b55)', color: '#fff' }; // طوفانی
+        return 'thunderstorm'; // طوفانی
       default:
-        return { background: '#f0f0f0', color: '#333' }; // پیش‌فرض
+        return 'default'; // پیش‌فرض
     }
   };
 
   return (
-    <div style={{
-      textAlign: 'center',
-      padding: 50,
-      fontFamily: 'Tahoma',
-      minHeight: '100vh',
-      ...getBackgroundStyle()
-    }}>
+    <div className={`app-container ${getBackgroundClass()}`}>
       <h1>وضعیت آب‌و‌هوا ☀️🌧️</h1>
 
       {/* بخش جستجوی شهر */}
