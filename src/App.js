@@ -153,7 +153,7 @@ function App() {
             cursor: 'pointer',
           }}
         >
-          جستجو
+          search
         </button>
       </div>
 
