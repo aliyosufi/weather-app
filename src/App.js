@@ -76,7 +76,7 @@ function App() {
   // دریافت آب‌وهوا بر اساس نام شهر
   const fetchWeatherByCity = () => {
     if (!city) return;
-
+  
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=fa`
     )
@@ -91,6 +91,9 @@ function App() {
       })
       .catch(() => {
         alert('خطا در دریافت اطلاعات شهر.');
+      })
+      .finally(() => {
+        setCity(""); // پاک کردن مقدار ورودی
       });
   };
 
