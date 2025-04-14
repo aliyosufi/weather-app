@@ -131,6 +131,11 @@ function App() {
           placeholder="نام شهر را وارد کنید..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              fetchWeatherByCity();
+            }
+          }}
           style={{
             padding: '10px',
             fontSize: '16px',
