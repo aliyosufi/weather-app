@@ -9,6 +9,30 @@ function App() {
   // دریافت API Key از متغیر محیطی
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
+  // جدول ترجمه فارسی به فارسی دری
+  const translationTable = {
+    "استان": "ولایت",
+    "شهر": "شهر",
+    "آفتابی": "آفتابی",
+    "ابری": "ابری",
+    "بارانی": "بارانی",
+    "برفی": "برفی",
+    "مه": "مه",
+    "طوفانی": "طوفانی",
+  };
+
+  // تابع ترجمه
+  const translateToDari = (text) => {
+    if (!text) return text;
+
+    // جایگزینی کلمات با استفاده از جدول ترجمه
+    Object.keys(translationTable).forEach((key) => {
+      text = text.replace(new RegExp(key, "g"), translationTable[key]);
+    });
+
+    return text;
+  };
+
   // دریافت آب‌وهوا بر اساس مختصات جغرافیایی
   const fetchWeatherByLocation = (lat, lon) => {
     if (!lat || !lon) return;
@@ -131,13 +155,13 @@ function App() {
       {/* اطلاعات هوا */}
       {weather && weather.main && weather.weather ? (
         <div>
-          <h2>{weather.name}</h2>
+          <h2>{translateToDari(weather.name)}</h2>
           <img
             src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
             alt="وضعیت آسمان"
           />
           <p>🌡️ دما: {weather.main.temp} درجه سانتی‌گراد</p>
-          <p>🌤️ آسمان: {weather.weather[0].description}</p>
+          <p>🌤️ آسمان: {translateToDari(weather.weather[0].description)}</p>
         </div>
       ) : (
         location.lat && <p>در حال دریافت اطلاعات آب‌وهوا...</p>
