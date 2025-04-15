@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './App.css'; // اضافه کردن فایل CSS
 
 function App() {
   const [location, setLocation] = useState({ lat: null, lon: null });
   const [weather, setWeather] = useState(null);
   const [city, setCity] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // دریافت API Key از متغیر محیطی
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
-  // جدول ترجمه فارسی به فارسی دری
+  // جدول ترجمه فارسی به فارسی دری (کامل‌تر شده)
   const translationTable = {
     "استان": "ولایت",
     "شهر": "شهر",
@@ -19,10 +21,15 @@ function App() {
     "برفی": "برفی",
     "مه": "مه",
     "طوفانی": "طوفانی",
+    "رعد و برق": "رعد و برق",
+    "باران": "باران",
+    "برف": "برف",
+    "غبار": "غبار",
+    "باد": "باد",
   };
 
   // تابع ترجمه
-  const translateToDari = (text) => {
+  const translateToDari = useCallback((text) => {
     if (!text) return text;
 
     // جایگزینی کلمات با استفاده از جدول ترجمه
@@ -31,12 +38,14 @@ function App() {
     });
 
     return text;
-  };
+  }, [translationTable]);
 
   // دریافت آب‌وهوا بر اساس مختصات جغرافیایی
-  const fetchWeatherByLocation = (lat, lon) => {
+  const fetchWeatherByLocation = useCallback((lat, lon) => {
     if (!lat || !lon) return;
 
+    setLoading(true);
+    setError('');
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`
     )
@@ -45,13 +54,16 @@ function App() {
         if (data.cod === 200) {
           setWeather(data);
         } else {
-          alert('خطا در دریافت اطلاعات آب‌وهوا!');
+          setError('خطا در دریافت اطلاعات آب‌وهوا!');
         }
       })
       .catch(() => {
-        alert('خطا در دریافت اطلاعات آب‌وهوا.');
+        setError('خطا در دریافت اطلاعات آب‌وهوا.');
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  };
+  }, [API_KEY]);
 
   // گرفتن موقعیت مکانی کاربر
   useEffect(() => {
@@ -65,18 +77,20 @@ function App() {
           fetchWeatherByLocation(latitude, longitude);
         },
         (error) => {
-          alert('دسترسی به موقعیت مکانی رد شد یا خطایی رخ داد.');
+          setError('دسترسی به موقعیت مکانی رد شد یا خطایی رخ داد.');
         }
       );
     } else {
-      alert('مرورگر شما از موقعیت مکانی پشتیبانی نمی‌کند.');
+      setError('مرورگر شما از موقعیت مکانی پشتیبانی نمی‌کند.');
     }
-  }, []);
+  }, [fetchWeatherByLocation]);
 
   // دریافت آب‌وهوا بر اساس نام شهر
-  const fetchWeatherByCity = () => {
+  const fetchWeatherByCity = useCallback(() => {
     if (!city) return;
-  
+
+    setLoading(true);
+    setError('');
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=fa`
     )
@@ -86,16 +100,17 @@ function App() {
           setWeather(data);
           setLocation({ lat: data.coord.lat, lon: data.coord.lon });
         } else {
-          alert('شهر پیدا نشد!');
+          setError('شهر پیدا نشد!');
         }
       })
       .catch(() => {
-        alert('خطا در دریافت اطلاعات شهر.');
+        setError('خطا در دریافت اطلاعات شهر.');
       })
       .finally(() => {
+        setLoading(false);
         setCity(""); // پاک کردن مقدار ورودی
       });
-  };
+  }, [city, API_KEY]);
 
   // انتخاب کلاس CSS بر اساس وضعیت آب‌وهوا
   const getBackgroundClass = () => {
@@ -160,6 +175,20 @@ function App() {
         </button>
       </div>
 
+      {/* نمایش خطا */}
+      {error && (
+        <div style={{ color: 'red', marginBottom: 10 }}>
+          {error}
+        </div>
+      )}
+
+      {/* نمایش لودینگ */}
+      {loading && (
+        <div style={{ marginBottom: 10 }}>
+          در حال دریافت اطلاعات...
+        </div>
+      )}
+
       {/* اطلاعات هوا */}
       {weather && weather.main && weather.weather ? (
         <div>
@@ -172,7 +201,7 @@ function App() {
           <p>🌤️ آسمان: {translateToDari(weather.weather[0].description)}</p>
         </div>
       ) : (
-        location.lat && <p>در حال دریافت اطلاعات آب‌وهوا...</p>
+        location.lat && !loading && !error && <p>در حال دریافت اطلاعات آب‌وهوا...</p>
       )}
     </div>
   );
