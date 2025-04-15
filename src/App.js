@@ -46,13 +46,19 @@ function App() {
 
     setLoading(true);
     setError('');
+    // تغییر URL به Weatherbit API
     fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`
+      `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${API_KEY}&lang=fa`
     )
       .then((res) => res.json())
       .then((data) => {
-        if (data.cod === 200) {
-          setWeather(data);
+        if (data && data.data && data.data.length > 0) {
+          const weatherData = data.data[0];
+          setWeather({
+            name: weatherData.city_name,
+            main: { temp: weatherData.temp },
+            weather: [{ main: weatherData.weather.description.toLowerCase(), description: weatherData.weather.description, icon: weatherData.weather.icon }]
+          });
         } else {
           setError('خطا در دریافت اطلاعات آب‌وهوا!');
         }
@@ -91,14 +97,20 @@ function App() {
 
     setLoading(true);
     setError('');
+    // تغییر URL به Weatherbit API
     fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=fa`
+      `https://api.weatherbit.io/v2.0/current?city=${city}&key=${API_KEY}&lang=fa`
     )
       .then((res) => res.json())
       .then((data) => {
-        if (data.cod === 200) {
-          setWeather(data);
-          setLocation({ lat: data.coord.lat, lon: data.coord.lon });
+        if (data && data.data && data.data.length > 0) {
+          const weatherData = data.data[0];
+          setWeather({
+            name: weatherData.city_name,
+            main: { temp: weatherData.temp },
+            weather: [{ main: weatherData.weather.description.toLowerCase(), description: weatherData.weather.description, icon: weatherData.weather.icon }]
+          });
+          setLocation({ lat: weatherData.lat, lon: weatherData.lon });
         } else {
           setError('شهر پیدا نشد!');
         }
@@ -194,7 +206,7 @@ function App() {
         <div>
           <h2>{translateToDari(weather.name)}</h2>
           <img
-            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+            src={`https://www.weatherbit.io/static/img/icons/${weather.weather[0].icon}.png`}
             alt="وضعیت آسمان"
           />
           <p>🌡️ دما: {weather.main.temp} درجه سانتی‌گراد</p>
