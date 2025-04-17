@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import './App.css'; // اضافه کردن فایل CSS
+import './App.css'; // Adding CSS file
 
 function App() {
   const [location, setLocation] = useState({ lat: null, lon: null });
@@ -8,20 +8,20 @@ function App() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // دریافت API Key از متغیر محیطی
+  // Get API Key from environment variables
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
-  // جدول ترجمه فارسی به فارسی دری (کامل‌تر شده)
+  // Translation table for Persian to Dari (extended)
   const translationTable = {
     "استان": "ولایت",
     "شهر": "شهر",
-     };
+  };
 
-  // تابع ترجمه
+  // Translation function
   const translateToDari = useCallback((text) => {
     if (!text) return text;
 
-    // جایگزینی کلمات با استفاده از جدول ترجمه
+    // Replace words using the translation table
     Object.keys(translationTable).forEach((key) => {
       text = text.replace(new RegExp(key, "g"), translationTable[key]);
     });
@@ -29,13 +29,13 @@ function App() {
     return text;
   }, [translationTable]);
 
-  // دریافت آب‌وهوا بر اساس مختصات جغرافیایی
+  // Fetch weather data based on geographic coordinates
   const fetchWeatherByLocation = useCallback((lat, lon) => {
     if (!lat || !lon) return;
 
     setLoading(true);
     setError('');
-    // تغییر URL به Weatherbit API
+    // Change URL to Weatherbit API
     fetch(
       `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${API_KEY}&lang=fa`
     )
@@ -49,18 +49,18 @@ function App() {
             weather: [{ main: weatherData.weather.description.toLowerCase(), description: weatherData.weather.description, icon: weatherData.weather.icon }]
           });
         } else {
-          setError('خطا در دریافت اطلاعات آب‌وهوا!');
+          setError('خطا در دریافت اطلاعات آب‌وهوا!'); // Error message in Persian
         }
       })
       .catch(() => {
-        setError('خطا در دریافت اطلاعات آب‌وهوا.');
+        setError('خطا در دریافت اطلاعات آب‌وهوا.'); // Error message in Persian
       })
       .finally(() => {
         setLoading(false);
       });
   }, [API_KEY]);
 
-  // گرفتن موقعیت مکانی کاربر
+  // Get user's location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -68,25 +68,25 @@ function App() {
           const { latitude, longitude } = pos.coords;
           setLocation({ lat: latitude, lon: longitude });
 
-          // فراخوانی تابع برای دریافت اطلاعات آب‌وهوا بر اساس مختصات
+          // Call function to fetch weather data based on coordinates
           fetchWeatherByLocation(latitude, longitude);
         },
         (error) => {
-          setError('دسترسی به موقعیت مکانی رد شد یا خطایی رخ داد.');
+          setError('دسترسی به موقعیت مکانی رد شد یا خطایی رخ داد.'); // Error message in Persian
         }
       );
     } else {
-      setError('مرورگر شما از موقعیت مکانی پشتیبانی نمی‌کند.');
+      setError('مرورگر شما از موقعیت مکانی پشتیبانی نمی‌کند.'); // Error message in Persian
     }
   }, [fetchWeatherByLocation]);
 
-  // دریافت آب‌وهوا بر اساس نام شهر
+  // Fetch weather data based on city name
   const fetchWeatherByCity = useCallback(() => {
     if (!city) return;
 
     setLoading(true);
     setError('');
-    // تغییر URL به Weatherbit API
+    // Change URL to Weatherbit API
     fetch(
       `https://api.weatherbit.io/v2.0/current?city=${city}&key=${API_KEY}&lang=fa`
     )
@@ -101,19 +101,19 @@ function App() {
           });
           setLocation({ lat: weatherData.lat, lon: weatherData.lon });
         } else {
-          setError('شهر پیدا نشد!');
+          setError('شهر پیدا نشد!'); // Error message in Persian
         }
       })
       .catch(() => {
-        setError('خطا در دریافت اطلاعات شهر.');
+        setError('خطا در دریافت اطلاعات شهر.'); // Error message in Persian
       })
       .finally(() => {
         setLoading(false);
-        setCity(""); // پاک کردن مقدار ورودی
+        setCity(""); // Clear input field
       });
   }, [city, API_KEY]);
 
-  // انتخاب کلاس CSS بر اساس وضعیت آب‌وهوا
+  // Select CSS class based on weather condition
   const getBackgroundClass = () => {
     if (!weather || !weather.weather) return 'default';
 
@@ -121,21 +121,21 @@ function App() {
 
     switch (main) {
       case 'clear':
-        return 'clear'; // آفتابی
+        return 'clear'; // Sunny
       case 'clouds':
-        return 'clouds'; // ابری
+        return 'clouds'; // Cloudy
       case 'rain':
       case 'drizzle':
-        return 'rain'; // بارانی
+        return 'rain'; // Rainy
       case 'snow':
-        return 'snow'; // برفی
+        return 'snow'; // Snowy
       case 'fog':
       case 'mist':
-        return 'fog'; // مه
+        return 'fog'; // Foggy
       case 'thunderstorm':
-        return 'thunderstorm'; // طوفانی
+        return 'thunderstorm'; // Stormy
       default:
-        return 'default'; // پیش‌فرض
+        return 'default'; // Default
     }
   };
 
@@ -143,11 +143,11 @@ function App() {
     <div className={`app-container ${getBackgroundClass()}`}>
       <h1>وضعیت آب‌و‌هوا ☀️🌧️</h1>
 
-      {/* بخش جستجوی شهر */}
+      {/* City search section */}
       <div style={{ marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="نام شهر را وارد کنید..."
+          placeholder="نام شهر را وارد کنید..." // Placeholder in Persian
           value={city}
           onChange={(e) => setCity(e.target.value)}
           onKeyDown={(e) => {
@@ -176,33 +176,33 @@ function App() {
         </button>
       </div>
 
-      {/* نمایش خطا */}
+      {/* Display error */}
       {error && (
         <div style={{ color: 'red', marginBottom: 10 }}>
           {error}
         </div>
       )}
 
-      {/* نمایش لودینگ */}
+      {/* Display loading */}
       {loading && (
         <div style={{ marginBottom: 10 }}>
-          در حال دریافت اطلاعات...
+          در حال دریافت اطلاعات... // Loading message in Persian
         </div>
       )}
 
-      {/* اطلاعات هوا */}
+      {/* Weather information */}
       {weather && weather.main && weather.weather ? (
         <div>
           <h2>{translateToDari(weather.name)}</h2>
           <img
             src={`https://www.weatherbit.io/static/img/icons/${weather.weather[0].icon}.png`}
-            alt="وضعیت آسمان"
+            alt="وضعیت آسمان" // Alt text in Persian
           />
-          <p>🌡️ دما: {weather.main.temp} درجه سانتی‌گراد</p>
-          <p>🌤️ آسمان: {translateToDari(weather.weather[0].description)}</p>
+          <p>🌡️ دما: {weather.main.temp} درجه سانتی‌گراد</p> {/* Temperature in Persian */}
+          <p>🌤️ آسمان: {translateToDari(weather.weather[0].description)}</p> {/* Sky description in Persian */}
         </div>
       ) : (
-        location.lat && !loading && !error && <p>در حال دریافت اطلاعات آب‌وهوا...</p>
+        location.lat && !loading && !error && <p>در حال دریافت اطلاعات آب‌وهوا...</p> // Message in Persian
       )}
     </div>
   );
